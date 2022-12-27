@@ -60,3 +60,12 @@ class ASLDataset(Dataset):
             'image': transform(self.images[idx]).float(),
             'label': torch.from_numpy(self.labels[idx]).float()
         }
+
+def get_train_test_dataloader(train_path:str, test_path: str, batch_size=32, num_workers=4):
+    train_dataset = ASLDataset(train_path)
+    test_dataset = ASLDataset(test_path)
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    return train_loader, test_loader
