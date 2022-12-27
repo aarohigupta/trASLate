@@ -52,16 +52,15 @@ def train_model(model, train_loader, num_epochs, device):
             loss = criterion(outputs, labels[:, 0]) # labels[:, 0] because labels is a 2D tensor
             loss.backward()
             optimizer.step()
-            
+
             curr_loss += loss.item()
             if i % 100 == 0:
-                print(f'epoch: {epoch + 1}, batch: {i + 1}, loss: {curr_loss / 100}')
-                
+                print(f'epoch: {epoch}, batch: {i}, loss: {curr_loss / (i + 1)}')
+        curr_loss = 0.0
         schedular.step()
 
-def main():
+def train(model_name: str, num_epochs: int, train_loader: Dataset):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = NeuralNet().float().to(device)
-    train_loader, _ = get_train_test_dataloader()
-    train_model(train_loader, 2, device)
-    torch.save(model.state_dict(), 'models/checkpoint.pth')
+    train_model(model, train_loader, num_epochs, device)
+    torch.save(model.state_dict(), f'models/{model_name}.pth')
