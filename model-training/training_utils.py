@@ -117,7 +117,7 @@ def train(model: nn.Module, train_loader: Dataset, criterion: nn.Module, optimiz
             curr_loss += loss.item()
             if i % 100 == 0:
                 print(f'epoch: {epoch}, batch: {i}, loss: {curr_loss / (i + 1)}')
-        curr_loss = 0.0
+        
         scheduler.step()
 
     return model
