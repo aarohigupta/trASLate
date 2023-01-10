@@ -4,6 +4,18 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
+class ImageTransform(transforms.Compose):
+    def __init__(self, mean, std, resize):
+        super().__init__([
+            transforms.ToPILImage(),
+            transforms.RandomResizedCrop(28, scale=(0.8, 1.2), ratio=(1.0, 1.0)),
+            transforms.RandomRotation(10),
+            transforms.ToTensor(),
+            transforms.Normalize((mean,), (std,)),
+            transforms.Lambda(lambda x: x.repeat(3, 1, 1)),
+            transforms.Resize(resize)
+        ])
+
 class ASLDataset(Dataset):
     """
     Dataset consists of images of size 1 x 1 x 28 x 28 (label x height x width)
@@ -42,24 +54,18 @@ class ASLDataset(Dataset):
 
     def __init__(self, path='data/asl_alphabet_train.csv'):
         self.labels, self.images = ASLDataset.get_data(path)
-        self.mean = np.mean(self.images)
-        self.std = np.std(self.images)
+        self.mean = [0.485, 0.456, 0.406]
+        self.std = [0.229, 0.224, 0.225]
+        self.image_transform = ImageTransform(mean=self.mean, std=self.std, resize=224)
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.RandomResizedCrop(28, scale=(0.8, 1.2), ratio=(1.0, 1.0)),
-            transforms.RandomRotation(10),
-            transforms.ToTensor(),
-            transforms.Normalize((self.mean,), (self.std,))
-        ])
-        return {
-            'image': transform(self.images[idx]).float(),
-            'label': torch.from_numpy(self.labels[idx]).float()
-        }
+        image = self.image_transform(self.images[idx])
+        label = torch.from_numpy(self.labels[idx]).float()
+        return {'image': image, 'label': label}
+
 
 def get_train_test_dataloader(train_path:str, test_path: str, batch_size=32, num_workers=4):
     train_dataset = ASLDataset(train_path)
