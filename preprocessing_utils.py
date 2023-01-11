@@ -5,15 +5,18 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 class ImageTransform(transforms.Compose):
+    """
+    Transforms the image to a 3-channel image with size 224 x 224
+    """
     def __init__(self, mean, std, resize):
         super().__init__([
-            transforms.ToPILImage(),
-            transforms.RandomResizedCrop(28, scale=(0.8, 1.2), ratio=(1.0, 1.0)),
-            transforms.RandomRotation(10),
-            transforms.ToTensor(),
-            transforms.Normalize((mean,), (std,)),
-            transforms.Lambda(lambda x: x.repeat(3, 1, 1)),
-            transforms.Resize(resize)
+            transforms.ToPILImage(),                                                # convert numpy array to PIL image
+            transforms.RandomResizedCrop(28, scale=(0.8, 1.2), ratio=(1.0, 1.0)),   # crop the image to 28 x 28
+            transforms.RandomRotation(10),                                          # rotate the image by 10 degrees
+            transforms.ToTensor(),                                                  # convert PIL image to tensor
+            transforms.Resize(resize),                                              # resize the image to 224 x 224
+            transforms.Lambda(lambda x: x.repeat(3, 1, 1)),                         # convert the image to 3-channel image
+            transforms.Normalize(mean=mean, std=std)                                # normalize the image
         ])
 
 class ASLDataset(Dataset):
