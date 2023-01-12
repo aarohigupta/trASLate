@@ -1,4 +1,2 @@
 # trASLate
-American sign language translation app built using ReactJS.
-
-something
+American sign language translation model built by fine tuning vgg16.
